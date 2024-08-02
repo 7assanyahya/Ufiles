@@ -1,6 +1,6 @@
 # Ufiles
 
-upload your file in local sever 💾.
+upload your file in local server 💾.
 
 the program use your PC ip 📟.
 
