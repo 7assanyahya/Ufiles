@@ -1,0 +1,118 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #252525;
+    margin: 0;
+    padding: 5%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: auto;
+    height: auto;
+    flex-direction: column;
+}
+.card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: #a2cdb1;
+    padding: 20px;
+    border-radius: 25px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.461);
+    margin-top: 3%;
+    width: 90%;
+    min-width: 250px;
+    max-width: 500px;
+}
+.card1{
+    display: flex;
+    flex-direction: column;
+    background: #000000;
+    padding: 20px;
+    border-radius: 25px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.461);
+    margin-top: 3%;
+    width: 90%;
+    min-width: 250px;
+    max-width: 500px;
+}
+
+.card2{
+    display: flex;
+    flex-direction: column;
+    background: #000000;
+    padding: 20px;
+    border-radius: 25px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.461);
+    margin-top: 3%;
+    width: 90%;
+    min-width: 250px;
+    max-width: 500px;
+
+}
+.but {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px;
+    background: #ffffff;
+    color: #000000;
+    border: none;
+    border-radius: 15px;
+    font-size: 20px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+h1, h2 {
+    color: #ffffff;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    background: #00000032;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+input[type="file"] {
+    margin-bottom: 10px;
+}
+
+input[type="submit"] {
+    background: #00ff77;
+    color: #000000;
+    font-weight: 900;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover {
+    background: #0056b3;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    display: flex;
+    justify-content: space-between;
+    background: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+}
+
+.loading {
+    display: none;
+    font-size: 18px;
+    color: #007bff;
+    margin-top: 20px;
+}

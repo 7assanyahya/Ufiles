@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Files</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <button onclick="history.back()">Back</button>
+    <h1>Server Files</h1>
+    <ul id="server-files"></ul>
+    <script>
+        function fetchFiles() {
+            fetch('/server-files')
+                .then(response => response.json())
+                .then(data => {
+                    const list = document.getElementById('server-files');
+                    list.innerHTML = '';
+                    data.forEach(file => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `${file.name}<div> <button onclick="deleteFile('${file.name}')">Delete</button><button onclick="downloadFile('${file.name}')">Download</button></div>`;
+                        list.appendChild(listItem);
+                    });
+                });
+        }
+
+        function deleteFile(fileName) {
+            fetch(`/delete?file=${fileName}`, { method: 'DELETE'})
+                .then(response => {
+                    if (response.ok) {
+                        fetchFiles();
+                    } else {
+                        alert('Failed to delete file');
+                    }
+                });
+        }
+
+        function downloadFile(fileName) {
+            fetch(`/download?file=${fileName}`, { method: 'DOWN' })
+                .then(response => {
+                    if (response.ok) {
+                        return response.blob();
+                    } else {
+                        return response.text().then(text => { throw new Error(text); });
+                    }
+                })
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch(error => {
+                    console.error('Error downloading file:', error);
+                    alert('Failed to download file: ' + error.message);
+                });
+        }
+
+        window.onload = fetchFiles;
+        setInterval(fetchFiles, 5000); // Auto-update every 5 seconds
+    </script>
+</body>
+</html>

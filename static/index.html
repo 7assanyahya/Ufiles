@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload File</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    
+    <div class="card">
+        <h1>Upload a File</h1>
+        <form id="uploadForm" enctype="multipart/form-data" action="/upload" method="post">
+            <!-- mltu file -->
+            <input type="file" name="file" />
+            <input type="submit" value="Upload" />
+        </form>
+        <div id="loading" class="loading">Uploading...</div>
+
+    </div>
+<div class="card2" >
+    <div class="split">
+        <h2>Last 5 Uploaded Files:</h2>
+        <ul id="last-uploaded-files"></ul>
+    </div>
+</div>
+
+<div class="card1">
+    <button class="but" onclick="window.location.href='./file.html'">
+        <!-- icon of sever  -->
+         <img src="https://img.icons8.com/ios/452/hdd.png" alt="server" width="50" height="50">
+         Go to Server Files</button>
+    </div>
+</body>
+</html>
