@@ -1,118 +1,210 @@
+/* Modern Neumorphic UI/UX Styles */
+
+:root {
+    --bg-color: #e0e0e0;
+    --text-color: #333;
+    --primary-color: #0a84ff;
+    --light-shadow: rgba(255, 255, 255, 0.5);
+    --dark-shadow: rgba(0, 0, 0, 0.15);
+    --danger-color: #ff453a;
+    --download-color: #30d158;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    background-color: #252525;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
     margin: 0;
-    padding: 5%;
+    padding: 2rem;
     display: flex;
-    justify-content: flex-start;
+    flex-direction: column;
     align-items: center;
-    width: auto;
-    height: auto;
-    flex-direction: column;
-}
-.card {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    background: #a2cdb1;
-    padding: 20px;
-    border-radius: 25px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.461);
-    margin-top: 3%;
-    width: 90%;
-    min-width: 250px;
-    max-width: 500px;
-}
-.card1{
-    display: flex;
-    flex-direction: column;
-    background: #000000;
-    padding: 20px;
-    border-radius: 25px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.461);
-    margin-top: 3%;
-    width: 90%;
-    min-width: 250px;
-    max-width: 500px;
-}
-
-.card2{
-    display: flex;
-    flex-direction: column;
-    background: #000000;
-    padding: 20px;
-    border-radius: 25px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.461);
-    margin-top: 3%;
-    width: 90%;
-    min-width: 250px;
-    max-width: 500px;
-
-}
-.but {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 10px;
-    background: #ffffff;
-    color: #000000;
-    border: none;
-    border-radius: 15px;
-    font-size: 20px;
-    font-weight: 900;
-    cursor: pointer;
+    min-height: 100vh;
+    box-sizing: border-box;
 }
 
 h1, h2 {
-    color: #ffffff;
+    color: var(--text-color);
+    text-align: center;
+    font-weight: 600;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.card, .card1, .card2 {
+    background: var(--bg-color);
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 10px 10px 20px var(--dark-shadow), -10px -10px 20px var(--light-shadow);
+    margin-top: 2rem;
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.but, input[type="submit"], .button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    background: var(--bg-color);
+    color: var(--primary-color);
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 5px 5px 10px var(--dark-shadow), -5px -5px 10px var(--light-shadow);
+    transition: all 0.2s ease-in-out;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.but:hover, input[type="submit"]:hover, .button:hover {
+    color: var(--primary-color);
+    box-shadow: 7px 7px 12px var(--dark-shadow), -7px -7px 12px var(--light-shadow);
+}
+
+.but:active, input[type="submit"]:active, .button:active {
+    box-shadow: inset 5px 5px 10px var(--dark-shadow), inset -5px -5px 10px var(--light-shadow);
+    color: #0a84ff;
+}
+
+.but img {
+    filter: none;
 }
 
 form {
     display: flex;
     flex-direction: column;
-    background: #00000032;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+    gap: 1.5rem;
+}
+
+.file-input-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: inset 5px 5px 10px var(--dark-shadow), inset -5px -5px 10px var(--light-shadow);
 }
 
 input[type="file"] {
-    margin-bottom: 10px;
-}
-
-input[type="submit"] {
-    background: #00ff77;
-    color: #000000;
-    font-weight: 900;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
     cursor: pointer;
 }
 
-input[type="submit"]:hover {
-    background: #0056b3;
+.file-input-label {
+    display: block;
+    padding: 1rem 1.5rem;
+    color: var(--text-color);
+    text-align: center;
+    cursor: pointer;
 }
 
 ul {
     list-style-type: none;
     padding: 0;
+    margin: 0;
+    width: 100%;
 }
 
 li {
     display: flex;
     justify-content: space-between;
-    background: #fff;
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    margin-bottom: 10px;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    box-shadow: 5px 5px 10px var(--dark-shadow), -5px -5px 10px var(--light-shadow);
+}
+
+li:last-child {
+    margin-bottom: 0;
+}
+
+li .file-info {
+    display: flex;
+    flex-direction: column;
+}
+
+li .file-name {
+    font-weight: 500;
+}
+
+li .button-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+li button {
+    background: var(--bg-color);
+    color: var(--text-color);
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 3px 3px 6px var(--dark-shadow), -3px -3px 6px var(--light-shadow);
+    transition: all 0.2s ease-in-out;
+}
+
+li button:active {
+    box-shadow: inset 2px 2px 4px var(--dark-shadow), inset -2px -2px 4px var(--light-shadow);
+}
+
+li button.delete-btn {
+    color: var(--danger-color);
+}
+
+li button.download-btn {
+    color: var(--download-color);
 }
 
 .loading {
     display: none;
-    font-size: 18px;
-    color: #007bff;
-    margin-top: 20px;
+    font-size: 1rem;
+    color: var(--primary-color);
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.back-button {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    background: var(--bg-color);
+    color: var(--text-color);
+    border: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 5px 5px 10px var(--dark-shadow), -5px -5px 10px var(--light-shadow);
+    transition: all 0.2s ease-in-out;
+}
+
+.back-button:active {
+    box-shadow: inset 2px 2px 4px var(--dark-shadow), inset -2px -2px 4px var(--light-shadow);
 }

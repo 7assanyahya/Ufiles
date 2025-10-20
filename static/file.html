@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Server Files</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
 </head>
 <body>
-    <button onclick="history.back()">Back</button>
-    <h1>Server Files</h1>
-    <ul id="server-files"></ul>
+    <button class="back-button" onclick="history.back()">&#x2190;</button>
+    <div class="card">
+        <h1>Server Files</h1>
+        <ul id="server-files"></ul>
+    </div>
+
     <script>
         function fetchFiles() {
             fetch('/server-files')
@@ -18,43 +20,79 @@
                 .then(data => {
                     const list = document.getElementById('server-files');
                     list.innerHTML = '';
-                    data.forEach(file => {
-                        const listItem = document.createElement('li');
-                        listItem.innerHTML = `${file.name}<div> <button onclick="deleteFile('${file.name}')">Delete</button><button onclick="downloadFile('${file.name}')">Download</button></div>`;
-                        list.appendChild(listItem);
-                    });
+                    if (data && data.length > 0) {
+                        data.forEach(file => {
+                            const listItem = document.createElement('li');
+                            listItem.innerHTML = `
+                                <div class="file-info">
+                                    <span class="file-name">${file.name}</span>
+                                </div>
+                                <div class="button-group">
+                                    <button class="download-btn" onclick="downloadFile('${file.name}')">Download</button>
+                                    <button class="delete-btn" onclick="deleteFile('${file.name}')">Delete</button>
+                                </div>`;
+                            list.appendChild(listItem);
+                        });
+                    } else {
+                        list.innerHTML = '<li>No files found on server.</li>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching files:', error);
+                    const list = document.getElementById('server-files');
+                    list.innerHTML = '<li>Error loading files.</li>';
                 });
         }
 
         function deleteFile(fileName) {
+            if (!confirm(`Are you sure you want to delete ${fileName}?`)) {
+                return;
+            }
             fetch(`/delete?file=${fileName}`, { method: 'DELETE'})
                 .then(response => {
                     if (response.ok) {
                         fetchFiles();
                     } else {
-                        alert('Failed to delete file');
+                        response.text().then(text => alert('Failed to delete file: ' + text));
                     }
+                })
+                .catch(error => {
+                    console.error('Error deleting file:', error);
+                    alert('Failed to delete file.');
                 });
         }
 
         function downloadFile(fileName) {
-            fetch(`/download?file=${fileName}`, { method: 'DOWN' })
+            fetch(`/download?file=${fileName}`)
                 .then(response => {
                     if (response.ok) {
-                        return response.blob();
+                        return response.blob().then(blob => ({ blob, response }));
                     } else {
                         return response.text().then(text => { throw new Error(text); });
                     }
                 })
-                .then(blob => {
+                .then(({ blob, response }) => {
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.style.display = 'none';
                     a.href = url;
-                    a.download = fileName;
+                    
+                    // Try to get filename from Content-Disposition header
+                    const disposition = response.headers.get('Content-Disposition');
+                    let downloadName = fileName;
+                    if (disposition && disposition.indexOf('attachment') !== -1) {
+                        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                        const matches = filenameRegex.exec(disposition);
+                        if (matches != null && matches[1]) {
+                            downloadName = matches[1].replace(/['"]/g, '');
+                        }
+                    }
+                    a.download = downloadName;
+                    
                     document.body.appendChild(a);
                     a.click();
                     window.URL.revokeObjectURL(url);
+                    a.remove();
                 })
                 .catch(error => {
                     console.error('Error downloading file:', error);
