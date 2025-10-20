@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="theme-toggle">
+        <button id="themeToggleBtn">�</button>
+    </div>
     <button class="back-button" onclick="history.back()">&#x2190;</button>
     <div class="card">
         <h1>Server Files</h1>
@@ -102,6 +105,22 @@
 
         window.onload = fetchFiles;
         setInterval(fetchFiles, 5000); // Auto-update every 5 seconds
+
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        themeToggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            if (document.body.classList.contains('dark-mode')) {
+                themeToggleBtn.textContent = '☀️';
+            } else {
+                themeToggleBtn.textContent = '🌙';
+            }
+        });
+
+        // Set initial theme based on user preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList.add('dark-mode');
+            themeToggleBtn.textContent = '☀️';
+        }
     </script>
 </body>
 </html>

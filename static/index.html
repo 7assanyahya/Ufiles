@@ -11,12 +11,12 @@
     
     <div class="card">
         <h1>Upload a File</h1>
-        <form id="uploadForm" enctype="multipart/form-data" action="/upload" method="post">
+        <form id="uploadForm" enctype="multipart/form-data" action="/upload" method="post" required>
             <div class="file-input-wrapper">
                 <input type="file" name="file" id="fileInput"/>
                 <label for="fileInput" class="file-input-label">Choose a file</label>
             </div>
-            <input type="submit" value="Upload" />
+            <input type="submit" value="Upload"/>
         </form>
         <div id="loading" class="loading">Uploading...</div>
     </div>
@@ -32,5 +32,25 @@
             <span>Server Files</span>
         </a>
     </div>
+    <div class="theme-toggle">
+        <button id="themeToggleBtn">🌙</button>
+    </div>
+    <script>
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        themeToggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            if (document.body.classList.contains('dark-mode')) {
+                themeToggleBtn.textContent = '☀️';
+            } else {
+                themeToggleBtn.textContent = '🌙';
+            }
+        });
+
+        // Set initial theme based on user preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList.add('dark-mode');
+            themeToggleBtn.textContent = '☀️';
+        }
+    </script>
 </body>
 </html>
