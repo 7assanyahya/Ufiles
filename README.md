@@ -14,6 +14,17 @@ Ufiles is a lightweight Go application that lets you upload, list, download, and
 
 Run it on your computer and access it from any device on the same Wi‑Fi/LAN.
 
+## Screenshots
+| Upload (light) | Server files (dark) |
+| --- | --- |
+| ![Upload page](docs/screenshots/index-desktop-light.png) | ![Server files page](docs/screenshots/file-desktop-dark.png) |
+
+<p align="center">
+  <img src="docs/screenshots/index-mobile-light.png" alt="Upload page on mobile" width="260">
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/file-mobile-dark.png" alt="Server files on mobile" width="260">
+</p>
+
 ## Features
 - Upload files via the browser (drag-and-drop style input)
 - View recent uploads (last 5)
