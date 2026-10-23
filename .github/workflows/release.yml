@@ -3,6 +3,11 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version tag to release (e.g. v1.0.0)"
+        required: true
 
 permissions:
   contents: write
@@ -10,21 +15,25 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ inputs.version || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version: stable
       - name: Build archives
-        run: scripts/package.sh "${GITHUB_REF_NAME}"
+        run: scripts/package.sh "${VERSION}"
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          notes=$(awk -v v="${GITHUB_REF_NAME#v}" '
+          notes=$(awk -v v="${VERSION#v}" '
             $0 ~ "^## \\[" v "\\]" {found=1; next}
             found && /^## \[/ {exit}
             found {print}' CHANGELOG.md)
-          gh release create "${GITHUB_REF_NAME}" dist/*.tar.gz dist/*.zip dist/checksums.txt \
-            --title "Ufiles ${GITHUB_REF_NAME}" \
+          # Creates the tag on this commit if it does not exist yet.
+          gh release create "${VERSION}" dist/*.tar.gz dist/*.zip dist/checksums.txt \
+            --target "${GITHUB_SHA}" \
+            --title "Ufiles ${VERSION}" \
             --notes "${notes:-See CHANGELOG.md}"
