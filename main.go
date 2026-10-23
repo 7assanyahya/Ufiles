@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -18,22 +19,21 @@ type UploadedFile struct {
 	Date time.Time `json:"date"`
 }
 
-var uploadedFiles []UploadedFile
+// uploadDir is where uploaded files are stored.
+const uploadDir = "./static/servfile"
 
-// func createFolders() {
-// 	folders := []string{"folder1", "folder2", "folder3"}
-// 	for _, folder := range folders {
-// 		path := "./static/servfile/" + folder
-// 		if _, err := os.Stat(path); os.IsNotExist(err) {
-// 			err := os.Mkdir(path, os.ModePerm)
-// 			if err != nil {
-// 				log.Println("Error creating folder:", err)
-// 			} else {
-// 				log.Println("Folder created:", path)
-// 			}
-// 		}
-// 	}
-// }
+// maxUploadSize limits a single upload (default 1 GiB, override with -max-size).
+var maxUploadSize int64 = 1 << 30
+
+// safeName strips any directory components from a user-supplied file name
+// so requests cannot read, write, or delete files outside uploadDir.
+func safeName(name string) (string, bool) {
+	name = filepath.Base(filepath.Clean("/" + name))
+	if name == "/" || name == "." || name == ".." || name == "" || name[0] == '.' {
+		return "", false
+	}
+	return name, true
+}
 
 func uploadFile(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
@@ -42,6 +42,7 @@ func uploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
 	file, handler, err := r.FormFile("file")
 	if err != nil {
 		http.Error(w, "Error retrieving the file", http.StatusInternalServerError)
@@ -50,7 +51,13 @@ func uploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	f, err := os.Create("./static/servfile/" + handler.Filename)
+	name, ok := safeName(handler.Filename)
+	if !ok {
+		http.Error(w, "Invalid file name", http.StatusBadRequest)
+		return
+	}
+
+	f, err := os.Create(filepath.Join(uploadDir, name))
 	if err != nil {
 		http.Error(w, "Error creating the file", http.StatusInternalServerError)
 		log.Println("Error creating the file:", err)
@@ -65,26 +72,37 @@ func uploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	uploadedFiles = append(uploadedFiles, UploadedFile{Name: handler.Filename, Date: time.Now()})
-	log.Println("File uploaded successfully:", handler.Filename)
+	log.Println("File uploaded successfully:", name)
 	http.Redirect(w, r, "/", http.StatusSeeOther) // Redirect to the main page
 }
 
-func getLastUploadedFiles(w http.ResponseWriter, r *http.Request) {
-	files, err := os.ReadDir("./static/servfile")
+// listFiles returns the regular, non-hidden files in uploadDir.
+func listFiles() ([]UploadedFile, error) {
+	files, err := os.ReadDir(uploadDir)
 	if err != nil {
-		http.Error(w, "Unable to read directory", http.StatusInternalServerError)
-		log.Println("Unable to read directory:", err)
-		return
+		return nil, err
 	}
 
-	var fileInfos []UploadedFile
+	fileInfos := []UploadedFile{}
 	for _, file := range files {
+		if file.IsDir() || file.Name()[0] == '.' {
+			continue
+		}
 		info, err := file.Info()
 		if err != nil {
 			continue
 		}
 		fileInfos = append(fileInfos, UploadedFile{Name: file.Name(), Date: info.ModTime()})
+	}
+	return fileInfos, nil
+}
+
+func getLastUploadedFiles(w http.ResponseWriter, r *http.Request) {
+	fileInfos, err := listFiles()
+	if err != nil {
+		http.Error(w, "Unable to read directory", http.StatusInternalServerError)
+		log.Println("Unable to read directory:", err)
+		return
 	}
 
 	sort.Slice(fileInfos, func(i, j int) bool {
@@ -95,37 +113,35 @@ func getLastUploadedFiles(w http.ResponseWriter, r *http.Request) {
 		fileInfos = fileInfos[:5]
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(fileInfos)
 }
 
 func getServerFiles(w http.ResponseWriter, r *http.Request) {
-	files, err := os.ReadDir("./static/servfile")
+	fileInfos, err := listFiles()
 	if err != nil {
 		http.Error(w, "Unable to read directory", http.StatusInternalServerError)
 		log.Println("Unable to read directory:", err)
 		return
 	}
 
-	var fileInfos []UploadedFile
-	for _, file := range files {
-		info, err := file.Info()
-		if err != nil {
-			continue
-		}
-		fileInfos = append(fileInfos, UploadedFile{Name: file.Name(), Date: info.ModTime()})
-	}
-
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(fileInfos)
 }
 
 func deleteFile(w http.ResponseWriter, r *http.Request) {
-	fileName := r.URL.Query().Get("file")
-	if fileName == "" {
-		http.Error(w, "File name is required", http.StatusBadRequest)
+	if r.Method != http.MethodDelete {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
 
-	err := os.Remove("./static/servfile/" + fileName)
+	fileName, ok := safeName(r.URL.Query().Get("file"))
+	if !ok {
+		http.Error(w, "Valid file name is required", http.StatusBadRequest)
+		return
+	}
+
+	err := os.Remove(filepath.Join(uploadDir, fileName))
 	if err != nil {
 		http.Error(w, "Unable to delete file", http.StatusInternalServerError)
 		log.Println("Unable to delete file:", err)
@@ -136,15 +152,13 @@ func deleteFile(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 func downloadFile(w http.ResponseWriter, r *http.Request) {
-	fileName := r.URL.Query().Get("file")
-	if fileName == "" {
-		http.Error(w, "File name is required", http.StatusBadRequest)
+	// Prevent path traversal
+	fileName, ok := safeName(r.URL.Query().Get("file"))
+	if !ok {
+		http.Error(w, "Valid file name is required", http.StatusBadRequest)
 		return
 	}
-
-	// Prevent path traversal
-	fileName = filepath.Clean(fileName)
-	filePath := "./static/servfile/" + fileName
+	filePath := filepath.Join(uploadDir, fileName)
 
 	// Check if file exists
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
@@ -162,13 +176,12 @@ func downloadFile(w http.ResponseWriter, r *http.Request) {
 	defer file.Close()
 
 	// Set the headers
-	w.Header().Set("Content-Disposition", "attachment; filename="+fileName)
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", fileName))
 	w.Header().Set("Content-Type", "application/octet-stream")
 
 	// Write the file to the response
 	_, err = io.Copy(w, file)
 	if err != nil {
-		http.Error(w, "Unable to write file to response", http.StatusInternalServerError)
 		log.Println("Unable to write file to response:", err)
 		return
 	}
@@ -194,8 +207,14 @@ func GetLocalIP() string {
 }
 
 func main() {
+	host := flag.String("host", "", "address to listen on (default: this machine's local network IP)")
+	port := flag.Int("port", 8080, "port to listen on")
+	maxSizeMB := flag.Int64("max-size", 1024, "maximum upload size in MB")
+	flag.Parse()
+	maxUploadSize = *maxSizeMB << 20
+
 	// Create a log file
-	logFile, err := os.OpenFile("server.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	logFile, err := os.OpenFile("server.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
 		fmt.Println("Error opening log file:", err)
 		return
@@ -203,6 +222,11 @@ func main() {
 	defer logFile.Close()
 	// Set log output to the log file
 	log.SetOutput(logFile)
+
+	if err := os.MkdirAll(uploadDir, 0755); err != nil {
+		fmt.Println("Error creating upload directory:", err)
+		return
+	}
 
 	fs := http.FileServer(http.Dir("./static"))
 
@@ -213,11 +237,15 @@ func main() {
 	http.HandleFunc("/delete", deleteFile)
 	http.HandleFunc("/download", downloadFile)
 
-	log.Printf("Starting server on %s:8080", GetLocalIP())
-	fmt.Printf("http://%s:8080\n", GetLocalIP())
+	if *host == "" {
+		*host = GetLocalIP()
+	}
+	addr := net.JoinHostPort(*host, fmt.Sprint(*port))
 
-	err = http.ListenAndServe(string(GetLocalIP())+":8080", nil)
+	log.Printf("Starting server on %s", addr)
+	fmt.Printf("http://%s\n", addr)
 
+	err = http.ListenAndServe(addr, nil)
 	if err != nil {
 		log.Println("Error starting server:", err)
 		fmt.Println("Error starting server:", err)
