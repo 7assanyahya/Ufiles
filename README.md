@@ -39,6 +39,9 @@ Run it on your computer and access it from any device on the same Wi‑Fi/LAN.
 - macOS, Linux, or Windows
 - Devices must be on the same local network
 
+## Download
+Grab a prebuilt archive for Windows, macOS, or Linux from the [Releases page](https://github.com/7assanyahya/ufiles/releases/latest), extract it, and run `ufiles` (or `ufiles.exe`) from inside the extracted folder. No Go installation required.
+
 ## Quick Start
 1. Build and run directly:
    - `go run .`
@@ -54,6 +57,7 @@ By default, the app binds to your machine’s local IP on port 8080 and writes l
 | `-host` | local network IP | Address to listen on (use `127.0.0.1` for local-only testing) |
 | `-port` | `8080` | Port to listen on |
 | `-max-size` | `1024` | Maximum upload size in MB |
+| `-version` | | Print the version and exit |
 
 Example: `go run . -port 9000 -max-size 4096`
 
