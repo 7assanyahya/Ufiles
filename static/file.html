@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Server Files</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="theme-toggle">
-        <button id="themeToggleBtn">�</button>
+        <button id="themeToggleBtn">🌙</button>
     </div>
     <button class="back-button" onclick="history.back()">&#x2190;</button>
     <div class="card">
@@ -26,14 +27,26 @@
                     if (data && data.length > 0) {
                         data.forEach(file => {
                             const listItem = document.createElement('li');
-                            listItem.innerHTML = `
-                                <div class="file-info">
-                                    <span class="file-name">${file.name}</span>
-                                </div>
-                                <div class="button-group">
-                                    <button class="download-btn" onclick="downloadFile('${file.name}')">Download</button>
-                                    <button class="delete-btn" onclick="deleteFile('${file.name}')">Delete</button>
-                                </div>`;
+                            const info = document.createElement('div');
+                            info.className = 'file-info';
+                            const name = document.createElement('span');
+                            name.className = 'file-name';
+                            name.textContent = file.name;
+                            info.appendChild(name);
+
+                            const group = document.createElement('div');
+                            group.className = 'button-group';
+                            const downloadBtn = document.createElement('button');
+                            downloadBtn.className = 'download-btn';
+                            downloadBtn.textContent = 'Download';
+                            downloadBtn.addEventListener('click', () => downloadFile(file.name));
+                            const deleteBtn = document.createElement('button');
+                            deleteBtn.className = 'delete-btn';
+                            deleteBtn.textContent = 'Delete';
+                            deleteBtn.addEventListener('click', () => deleteFile(file.name));
+                            group.append(downloadBtn, deleteBtn);
+
+                            listItem.append(info, group);
                             list.appendChild(listItem);
                         });
                     } else {
@@ -51,7 +64,7 @@
             if (!confirm(`Are you sure you want to delete ${fileName}?`)) {
                 return;
             }
-            fetch(`/delete?file=${fileName}`, { method: 'DELETE'})
+            fetch(`/delete?file=${encodeURIComponent(fileName)}`, { method: 'DELETE'})
                 .then(response => {
                     if (response.ok) {
                         fetchFiles();
@@ -66,7 +79,7 @@
         }
 
         function downloadFile(fileName) {
-            fetch(`/download?file=${fileName}`)
+            fetch(`/download?file=${encodeURIComponent(fileName)}`)
                 .then(response => {
                     if (response.ok) {
                         return response.blob().then(blob => ({ blob, response }));

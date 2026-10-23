@@ -1,0 +1,15 @@
+# Runtime data
+server.log
+static/servfile/*
+!static/servfile/.gitkeep
+
+# Build output
+/ufiles
+/ufiles.exe
+/dist/
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

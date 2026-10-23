@@ -133,12 +133,12 @@ h2 {
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-.but img {
+.but img, .but .icon {
     filter: brightness(0) invert(1);
     transition: transform 0.3s ease;
 }
 
-.but:hover img {
+.but:hover img, .but:hover .icon {
     transform: scale(1.1);
 }
 
