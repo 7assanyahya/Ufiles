@@ -19,6 +19,9 @@ type UploadedFile struct {
 	Date time.Time `json:"date"`
 }
 
+// version is set at build time with -ldflags "-X main.version=..."
+var version = "dev"
+
 // uploadDir is where uploaded files are stored.
 const uploadDir = "./static/servfile"
 
@@ -210,7 +213,12 @@ func main() {
 	host := flag.String("host", "", "address to listen on (default: this machine's local network IP)")
 	port := flag.Int("port", 8080, "port to listen on")
 	maxSizeMB := flag.Int64("max-size", 1024, "maximum upload size in MB")
+	showVersion := flag.Bool("version", false, "print version and exit")
 	flag.Parse()
+	if *showVersion {
+		fmt.Println("ufiles", version)
+		return
+	}
 	maxUploadSize = *maxSizeMB << 20
 
 	// Create a log file
